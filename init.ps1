@@ -84,11 +84,22 @@ New-Item -ItemType Directory -Force -Path $env:DEVENV_SETTINGS | OUT-NULL
 New-Item -ItemType Directory -Force -Path $env:DEVENV_HOME | OUT-NULL
 
 
-$env:Path = "$env:Path;$installPath\jre\bin;$installPath\kotlinc\bin"
+Invoke-WebRequest -Uri "https://github.com/msebire/devenv/archive/master.zip" -OutFile "${env:DEVENV_CACHE}\devenv.zip"
+Expand-Archive "${env:DEVENV_CACHE}\devenv.zip" "${env:DEVENV_CACHE}"
 
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/msebire/devenv/master/init/hello.kts" -OutFile "$installPath\hello.kts"
+Copy-Item -Path "${env:DEVENV_CACHE}\devenv-master\init\tools\*" -Destination $env:DEVENV_TOOLS -Recurse
 
-Invoke-Expression "kotlinc -script $installPath\hello.kts"
+
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("${env:DEVENV_TOOLS}\Dev Console.lnk")
+$Shortcut.TargetPath = "powershell"
+$Shortcut.Arguments = "-NoProfile -NoLogo -NoExit -command %DEVENV_TOOLS%\bin\devenv.ps1"
+$Shortcut.WorkingDirectory = "%DEVENV_HOME%"
+$Shortcut.Save()
+
+$env:Path = "$env:Path;$installPath\jre\bin;$installPath\kotlinc\bin;$env:DEVENV_TOOLS/bin"
+
+Invoke-Expression "install kotlin"
 
 
 Write-Host "Press any key to continue ..."
