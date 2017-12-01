@@ -50,6 +50,6 @@ if (Files.exists(envIni)) {
     envProperties.addAll(Files.readAllLines(envIni))
     envProperties.removeAll { line -> line.startsWith("KOTLIN_HOME=") }
 }
-envProperties.add("KOTLIN_HOME=\${env:DEVENV_TOOLS}/${directoryName}/opt")
+envProperties.add("KOTLIN_HOME=\${env:DEVENV_TOOLS}/opt/${directoryName}")
 envProperties.add("PATH=\${env:PATH};\${env:KOTLIN_HOME}/bin")
 Files.write(envIni, envProperties)
